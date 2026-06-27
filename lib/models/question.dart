@@ -1,25 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:quiz_app/models/answer.dart';
 
-class Question extends StatelessWidget {
+class Question {
   final String questionText;
+  final List<Answer> answers;
 
-  const Question(
-    this.questionText, {
-    super.key,
+  const Question({
+    required this.questionText,
+    required this.answers,
   });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(10),
-      child: Text(
-        questionText,
-        style: const TextStyle(
-          fontSize: 28,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
 }

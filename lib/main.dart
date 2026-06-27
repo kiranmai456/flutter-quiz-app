@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import './quiz.dart';
-import './result.dart';
+
+import 'data/quiz_data.dart';
+import 'models/answer.dart';
+import 'screens/result_screen.dart';
+import 'widgets/answer_button.dart';
+import 'widgets/progress_indicator_widget.dart';
+import 'widgets/question_card.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,57 +15,62 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() {
-    return _MyAppState();
-  }
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  final List<Map<String, Object>> _questions = const [
-    {
-      'questionText': 'What\'s your favorite color?',
-      'answers': ['Black', 'Red', 'Green', 'White'],
-    },
-    {
-      'questionText': 'What\'s your favorite animal?',
-      'answers': ['Rabbit', 'Snake', 'Elephant', 'Lion'],
-    },
-    {
-      'questionText': 'What\'s your favorite instructor?',
-      'answers': ['Max', 'Max', 'Max', 'Max'],
-    },
-  ];
+  int currentQuestion = 0;
+  int totalScore = 0;
 
-  int _questionIndex = 0;
-
-  void _answerQuestion() {
+  void answerQuestion(int score) {
     setState(() {
-      _questionIndex++;
+      totalScore += score;
+      currentQuestion++;
     });
+  }
 
-    print(_questionIndex);
-
-    if (_questionIndex < _questions.length) {
-      print('We have more questions!');
-    } else {
-      print('No more questions!');
-    }
+  void restartQuiz() {
+    setState(() {
+      currentQuestion = 0;
+      totalScore = 0;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final isFinished = currentQuestion >= questions.length;
+
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('My First App'),
+          title: const Text('Flutter Quiz App'),
         ),
-        body: _questionIndex < _questions.length
-            ? Quiz(
-                answerQuestion: _answerQuestion,
-                questionIndex: _questionIndex,
-                questions: _questions,
+        body: isFinished
+            ? ResultScreen(
+                score: totalScore,
+                restartQuiz: restartQuiz,
               )
-            : Result(),
+            : Column(
+                children: [
+                  QuizProgress(
+                    current: currentQuestion + 1,
+                    total: questions.length,
+                  ),
+                  QuestionCard(
+                    question:
+                        questions[currentQuestion].questionText,
+                  ),
+                  ...(questions[currentQuestion].answers)
+                      .map(
+                        (Answer answer) => AnswerButton(
+                          text: answer.text,
+                          onPressed: () =>
+                              answerQuestion(answer.score),
+                        ),
+                      ),
+                ],
+              ),
       ),
     );
   }
